@@ -25,101 +25,31 @@
             minZoom: 2
         });
 
-        // === BASE LAYERS ===
-
-        // Streets (OpenStreetMap)
-        const streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors',
-            maxZoom: 19,
-            noWrap: true
-        });
-
-        // Satellite (Esri World Imagery)
-        const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            attribution: '&copy; Esri, Maxar, Earthstar Geographics',
-            maxZoom: 18,
-            noWrap: true
-        });
-
-        // Topographic with contour lines (OpenTopoMap - SRTM-based)
-        const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            attribution: 'Map data: &copy; OpenStreetMap, SRTM | Style: &copy; OpenTopoMap (CC-BY-SA)',
-            maxZoom: 17,
-            noWrap: true
-        });
-
-        // GEBCO - Global land + ocean bathymetry shaded relief (15 arc-second resolution)
-        const gebco = L.tileLayer.wms('https://wms.gebco.net/mapserv?', {
+        // Layer 1: GEBCO global terrain + ocean bathymetry (base)
+        L.tileLayer.wms('https://wms.gebco.net/mapserv?', {
             layers: 'gebco_latest',
             format: 'image/png',
             transparent: false,
             noWrap: true,
-            attribution: '&copy; GEBCO Compilation Group — global bathymetry & land relief'
-        });
+            attribution: 'GEBCO'
+        }).addTo(map);
 
-        // Esri Shaded Relief (color-tinted elevation)
-        const shadedRelief = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}', {
-            attribution: '&copy; Esri, USGS',
-            maxZoom: 13,
-            noWrap: true
-        });
-
-        // Esri Ocean Basemap (detailed ocean floor bathymetry)
-        const ocean = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
-            attribution: '&copy; Esri, GEBCO, NOAA, National Geographic',
-            maxZoom: 13,
-            noWrap: true
-        });
-
-        // === OVERLAY LAYERS (can be toggled on/off) ===
-
-        // Esri Hillshade overlay (grayscale shadows for 3D terrain feel)
-        const hillshade = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}', {
-            attribution: '&copy; Esri, USGS',
+        // Layer 2: Esri hillshade for 3D terrain depth
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}', {
             maxZoom: 13,
             noWrap: true,
-            opacity: 0.35
-        });
+            opacity: 0.3
+        }).addTo(map);
 
-        // Mundialis SRTM colored hillshade
-        const srtmHillshade = L.tileLayer.wms('https://ows.mundialis.de/services/service?', {
-            layers: 'SRTM30-Colored-Hillshade',
-            format: 'image/png',
-            transparent: true,
+        // Layer 3: OpenTopoMap contour lines + labels on land
+        L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            maxZoom: 17,
             noWrap: true,
-            opacity: 0.5,
-            attribution: '&copy; Mundialis, SRTM'
-        });
-
-        // GEBCO sub-ice topography (shows terrain under ice sheets)
-        const gebcoSubIce = L.tileLayer.wms('https://wms.gebco.net/mapserv?', {
-            layers: 'gebco_latest_sub_ice_topo',
-            format: 'image/png',
-            transparent: true,
-            noWrap: true,
-            opacity: 0.5,
-            attribution: '&copy; GEBCO — sub-ice topography'
-        });
-
-        // Default: GEBCO (most accurate global terrain + ocean)
-        gebco.addTo(map);
-
-        // Layer switcher
-        L.control.layers({
-            'Terrain & Ocean (GEBCO)': gebco,
-            'Topographic + Contours': topo,
-            'Shaded Relief (Esri)': shadedRelief,
-            'Ocean Floor (Esri)': ocean,
-            'Satellite': satellite,
-            'Streets': streets
-        }, {
-            'Hillshade Overlay': hillshade,
-            'SRTM Colored Hillshade': srtmHillshade,
-            'Sub-Ice Topography': gebcoSubIce
-        }, { position: 'topright', collapsed: false }).addTo(map);
+            opacity: 0.4
+        }).addTo(map);
 
         // Scale bar
-        L.control.scale({ imperial: true, metric: true }).addTo(map);
+        L.control.scale({ metric: true, imperial: false }).addTo(map);
     </script>
 </body>
 </html>
